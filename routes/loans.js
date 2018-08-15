@@ -1,15 +1,15 @@
-var express = require('express');
-var router = express.Router();
-var Loan = require('../models').Loan;
-var Book = require('../models').Book;
-var Patron = require('../models').Patron;
-var sequelize = require('sequelize');
-var Op = sequelize.Op;
-var dateFormat = require('dateformat');
+const express = require('express');
+const router = express.Router();
+const Loan = require('../models').Loan;
+const Book = require('../models').Book;
+const Patron = require('../models').Patron;
+const sequelize = require('sequelize');
+const Op = sequelize.Op;
+const dateFormat = require('dateformat');
 
 /* GET all loans. */
 router.get('/', function(req, res, next) {
-  // { order: [["author", "DESC"]] }
+  //Finds all loans and related book and patron info.
   Loan.findAll({
       include: [
         {
@@ -28,6 +28,7 @@ router.get('/', function(req, res, next) {
 
 /* GET overdue loans. */
 router.get('/overdue', function(req, res, next) {
+  //Finds all loans that are overdue, including related book and patron info.
   Loan.findAll({
       include: [
         {
@@ -52,6 +53,7 @@ router.get('/overdue', function(req, res, next) {
 
 /* GET checked out books. */
 router.get('/checked-out', function(req, res, next) {
+  //Finds all loans that are checked out, including related book and patron info.
   Loan.findAll({
     include: [
       {
@@ -80,6 +82,7 @@ router.get('/checked-out', function(req, res, next) {
 /* GET new loan page. */
 router.get('/new', function(req, res, next) {
   Promise.all([
+    //Finds all loans that are currently checked out, including related book info
     Loan.findAll({
       include: [
         {
@@ -90,13 +93,16 @@ router.get('/new', function(req, res, next) {
         returned_on: null
       }
     }),
+    //Finds all patrons
     Patron.findAll()
   ])
   .then(function(results) {
+    //Creates array of book ids for books that are currently checked out.
     let loanedBookIds = results[0].map(function(loan) {
       return loan.Book.id;
     });
     let patrons = results[1];
+    //Finds all books that are not checked out.
     Book.findAll({
       where: {
         id: {
@@ -104,10 +110,13 @@ router.get('/new', function(req, res, next) {
         }
       }
     }).then(function(unloanedBooks) {
+        //Finds and formats today's date and date seven days from today
         let now = new Date();
         let nowPlusSeven = new Date(now).setDate(now.getDate() + 7);
         let loanedOn = dateFormat(now, "yyyy-mm-dd");
         let returnBy = dateFormat(nowPlusSeven, "yyyy-mm-dd");
+        //Displays page for user to select from books that are not checked out,
+        //existing patrons, and a prepopulated, but changeable, checkout date and return by date.
         res.render('loans/new', {
                       title: "New Loan",
                       books: unloanedBooks,
@@ -127,12 +136,15 @@ router.get('/new', function(req, res, next) {
 
 /* POST create new loan. */
 router.post('/new', function(req, res, next) {
+  //Creates new loan with input from form
   Loan
     .create(req.body)
     .then(function() {
       res.redirect('/loans');
     })
     .catch(function(error) {
+      //If validation error, finds info for form, displays errors and directs
+      //user to correct them before submission.
       if(error.name === "SequelizeValidationError") {
         Promise.all([
           Loan.findAll({
@@ -185,6 +197,7 @@ router.post('/new', function(req, res, next) {
 
 /* GET return book page. */
 router.get('/return/:id', function(req, res, next) {
+  //Finds particular loan based on loan id and populates return form
   Loan.findAll({
     include: [
       {
@@ -213,6 +226,7 @@ router.get('/return/:id', function(req, res, next) {
 
 /* POST return book (update loan). */
 router.post('/return/:id', function(req, res, next) {
+  //updates loan by included a returned on date based on loan id.
   Loan
     .update(req.body, {
       where: {
@@ -223,6 +237,7 @@ router.post('/return/:id', function(req, res, next) {
       return res.redirect('/loans');
     })
     .catch(function(error) {
+      //if validation error, repopulates return form and displays errors for user to correct.
       if(error.name === "SequelizeValidationError") {
         Loan.findAll({
           include: [

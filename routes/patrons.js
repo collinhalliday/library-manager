@@ -1,20 +1,24 @@
-var express = require('express');
-var router = express.Router();
-var Patron = require('../models').Patron;
-var Loan = require('../models').Loan;
-var Book = require('../models').Book;
-var sequelize = require('sequelize');
-var Op = sequelize.Op;
+const express = require('express');
+const router = express.Router();
+const Patron = require('../models').Patron;
+const Loan = require('../models').Loan;
+const Book = require('../models').Book;
+const sequelize = require('sequelize');
+const Op = sequelize.Op;
 
 /* GET all patrons. */
 router.get('/list/:id', function(req, res, next) {
   Promise.all([
+    //Finds certain set of patrons based on pagination link clicked.
     Patron.findAll({ offset: req.params.id*10,
                      limit: 10
     }),
+    //Finds total patron count.
     Patron.count()
   ])
   .then(function(results) {
+    //Sets up pagination link info by calculating how many pages are necessary
+    //(i.e. ten per page)
     let pages = Math.ceil(results[1]/10);
     let pageArr = [];
     for(let i = 0; i < pages; i++)
@@ -52,6 +56,7 @@ router.get('/list/:id', function(req, res, next) {
 router.post('/search/:id', function(req, res, next) {
   let category = req.body.category;
   let query = req.body.query;
+  //Sets ups search option form value and display value.
   let categories = [
         {
           value: 'first_name',
@@ -67,6 +72,7 @@ router.post('/search/:id', function(req, res, next) {
         }
   ];
 
+  //function that properly formats category (i.e. from "first_name" to "First Name")
   function formatCategory (string) {
     let reformattedString = '';
     string.split("_").forEach(function(subStr) {
@@ -79,6 +85,7 @@ router.post('/search/:id', function(req, res, next) {
   }
 
   Promise.all([
+    //Finds set of patrons based on search category, query and pagination link clicked.
     Patron.findAll({ offset: req.params.id*10,
                    limit: 10,
                    where: {
@@ -87,6 +94,7 @@ router.post('/search/:id', function(req, res, next) {
                      }
                    }
     }),
+    //Finds total patron count based on search category and query.
     Patron.count({
       where: {
         [category]: {
@@ -96,6 +104,8 @@ router.post('/search/:id', function(req, res, next) {
     })
   ])
   .then(function(results) {
+    //Sets up pagination link info by calculating how many pages are necessary
+    //(i.e. ten per page)
     let pages = Math.ceil(results[1]/10);
     let pageArr = [];
     for(let i = 0; i < pages; i++)
@@ -118,6 +128,7 @@ router.post('/search/:id', function(req, res, next) {
 
 /* GET patron details. */
 router.get('/detail/:id', function(req, res, next) {
+  //Finds particular patron info based on loan search for patron id, including related book and patron info
   Loan.findAll({
     include: [
       {
@@ -146,6 +157,7 @@ router.get('/detail/:id', function(req, res, next) {
                             title: `Patron: ${patrons[0].first_name} ${patrons[0].last_name}`
       });
     else
+      //if patron has no loan history, finds patron info directly through patron id.
       Patron.findAll({
         where: {
           id: req.params.id
@@ -169,6 +181,7 @@ router.get('/detail/:id', function(req, res, next) {
 
 /* POST update patron. */
 router.post('/update/:id', function(req, res, next) {
+  //Updates patron's info based on form input
   Patron
     .update(req.body, {
       where: {
@@ -179,6 +192,8 @@ router.post('/update/:id', function(req, res, next) {
       return res.redirect('/patrons/list/0');
     })
     .catch(function(error) {
+      //If validation errors, errors are displayed to user, patron info and loan history are repopulated,
+      //and errors are displayed to user with instructures to correct them before submitting.
       if(error.name === "SequelizeValidationError" || error.name === 'SequelizeUniqueConstraintError') {
         let errorMsgs;
         if(error.name === 'SequelizeUniqueConstraintError')
@@ -213,6 +228,8 @@ router.post('/update/:id', function(req, res, next) {
                 errors: errorMsgs
             });
           else
+            //Again, info is first obtained through loan, if loans for partiular patron exist. Otherwise,
+            //Patron info is obtained directly by patron id.
             Patron.findAll({
               where: {
                 id: req.params.id
@@ -249,12 +266,14 @@ router.get('/new', function(req, res, next) {
 
 /* POST create new patron. */
 router.post('/new', function(req, res, next) {
+  //Creates new patron based on form input
   Patron
     .create(req.body)
     .then(function() {
       res.redirect('/patrons/list/0');
     })
     .catch(function(error) {
+      //If validation errors, user is directed to fix errors before submitting.
       if(error.name === "SequelizeValidationError")
         res.render('patrons/new', {
             patron: req.body,
@@ -262,6 +281,8 @@ router.post('/new', function(req, res, next) {
             errors: error.errors
         });
       else if(error.name === 'SequelizeUniqueConstraintError')
+        //If user attempts to create new user with a library_id that already exists, displays error and directs
+        //user to input a unique library id.
         res.render('patrons/new', {
             patron: req.body,
             title: 'New Patron',

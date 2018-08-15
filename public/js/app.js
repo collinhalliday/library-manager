@@ -12,12 +12,14 @@ let query;
 let category;
 let params = {};
 
+//function that posts to proper route depending upon which pagination link is clicked through use
+//of a hidden form input.
 function post(path, params, method) {
     method = method || "post"; // Set method to post by default if not specified.
 
     // The rest of this code assumes you are not using a library.
     // It can be made less wordy if you use one.
-    var form = document.createElement("form");
+    let form = document.createElement("form");
     form.setAttribute("method", method);
     form.setAttribute("action", path);
 
@@ -36,6 +38,8 @@ function post(path, params, method) {
     form.submit();
 }
 
+//Searches the page's title string for the appropriate category on the books
+//listing page to be used above in the post function path parameter.
 function bookCategorySearch(string) {
   if(string.search("Title") > - 1)
     return {
@@ -54,6 +58,9 @@ function bookCategorySearch(string) {
     };
 }
 
+
+//Searches the page's title string for the appropriate category on the patrons
+//listing page to be used above in the post function path parameter.
 function patronCategorySearch(string) {
   if(string.search("First Name") > - 1)
     return {
@@ -72,6 +79,7 @@ function patronCategorySearch(string) {
     };
 }
 
+//Reformats the category string for the path to the patrons listing page (i.e. "First Name" to "first_name")
 function formatPatronCategory(string) {
   let reformattedString = '';
   let strArr = string.split(" ");
@@ -81,6 +89,7 @@ function formatPatronCategory(string) {
   return reformattedString.trim();
 }
 
+//If on the books listing page, sets the appropriate href for the pagination links based on the current page.
 if(location.href.indexOf('books') > -1 && location.href.indexOf('search') > -1) {
   let categoryCoordinates = bookCategorySearch(title);
   query = title.slice(title.search("\"")).replace("\"", "").replace("\"", "");
@@ -103,6 +112,7 @@ if(location.href.indexOf('books') > -1 && location.href.indexOf('search') > -1) 
   });
 }
 
+//If on the patrons listing page, sets the appropriate href for the pagination links based on the current page.
 if(location.href.indexOf('patrons') > -1 && location.href.indexOf('search') > -1) {
   let categoryCoordinates = patronCategorySearch(title);
   query = title.slice(title.search("\"")).replace("\"", "").replace("\"", "");

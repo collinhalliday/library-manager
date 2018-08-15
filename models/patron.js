@@ -1,6 +1,12 @@
 'use strict';
+
+/*
+Basic structure generated through Sequelize CLI. Additions include validations, error messages,
+removal of timestamps. Also made the library_id unique.
+*/
+
 module.exports = (sequelize, DataTypes) => {
-  var Patron = sequelize.define('Patron', {
+  const Patron = sequelize.define('Patron', {
     id: {
           type: DataTypes.INTEGER,
           primaryKey: true

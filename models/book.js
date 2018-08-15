@@ -1,6 +1,11 @@
 'use strict';
+
+/*
+Basic structure generated through Sequelize CLI. Additions include validations, error messages,
+removal of timestamps
+*/
 module.exports = (sequelize, DataTypes) => {
-  var Book = sequelize.define('Book', {
+  const Book = sequelize.define('Book', {
     id: {
           type: DataTypes.INTEGER,
           primaryKey: true

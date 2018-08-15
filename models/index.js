@@ -33,10 +33,10 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-//Models
-// db.Book = require('../models/book.js')(sequelize, Sequelize);
-// db.Patron = require('../models/patron.js')(sequelize, Sequelize);
-// db.Loan = require('../models/loan.js')(sequelize, Sequelize);
+/*
+File primarily generated through use of Sequelize CLI. Relations below were added to account for
+the relationships between the loan table and the patron and book tablse.
+*/
 
 //Relations
 db.Loan.belongsTo(db.Patron, { foreignKey: 'patron_id' });

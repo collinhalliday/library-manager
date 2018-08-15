@@ -1,14 +1,20 @@
 'use strict';
 
-var dateFormat = require('dateformat');
+const dateFormat = require('dateformat');
 
 let now = new Date();
 let nowMinusOne = new Date(now).setDate(now.getDate() - 1);
 let today = dateFormat(now, "yyyy-mm-dd");
 let yesterday = dateFormat(nowMinusOne, "yyyy-mm-dd");
 
+/*
+Basic structure generated through Sequelize CLI. Additions include validations, error messages,
+removal of timestamps. Also included date functions and formatting above for the date-related
+validations below.
+*/
+
 module.exports = (sequelize, DataTypes) => {
-  var Loan = sequelize.define('Loan', {
+  const Loan = sequelize.define('Loan', {
     id: {
           type: DataTypes.INTEGER,
           primaryKey: true
