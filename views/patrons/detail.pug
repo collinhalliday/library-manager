@@ -1,0 +1,56 @@
+extends ../layout
+
+block content
+  include ../errors
+
+  form(action= `/patrons/update/${patrons[0].id}` method="post")
+    p
+      label(for="first_name") First Name
+      input(id="first_name" type="text" name="first_name" value=patron.first_name)
+    p
+      label(for="last_name") Last Name
+      input(id="last_name" type="text" name="last_name" value=patron.last_name)
+    p
+      label(for="address") Address
+      input(id="address" type="text" name="address" value=patron.address)
+    p
+      label(for="email") Email
+      input(id="email" type="text" name="email" value=patron.email)
+    p
+      label(for="library_id") Library ID
+      input(id="library_id" type="text" name="library_id" value=patron.library_id)
+    p
+      label(for="zip_code") Zip Code
+      input(id="zip_code" type="text" name="zip_code" value=patron.zip_code)
+    p
+      input(type="submit" value="Update")
+  h2 Loan History
+  table
+    thead
+        tr
+          th Book
+          th Patron
+          th Loaned on
+          th Return by
+          th Returned on
+          th Action
+    tbody
+      if(loans.length > 0)
+        each loan in loans
+          tr
+            td
+              a(href=`/books/detail/${loan.Book.id}`) #{loan.Book.title}
+            td
+              a(href=`/patrons/detail/${loan.Patron.id}`) #{loan.Patron.first_name} #{loan.Patron.last_name}
+            td= loan.loaned_on
+            td= loan.return_by
+            if(loan.returned_on)
+              td= loan.returned_on
+              td
+            else
+              td
+              td
+                a(href=`/loans/return/${loan.id}` class="button") Return Book
+      else
+        tr
+          td There is currently no loan history for this patron

@@ -1,0 +1,19 @@
+extends ../layout
+
+block content
+    include ../errors
+
+    p
+      <strong>Book Title: </strong> #{book.title}
+    p
+      <strong>Loaned By: </strong> #{patron.first_name} #{patron.last_name}
+    p
+      <strong>Loaned On: </strong> #{loan.loaned_on}
+    p
+      <strong>Return By: </strong> #{loan.return_by}
+    form(action=`/loans/return/${loan.id}` method="post")
+      p
+        label(for="returned_on") Returned on:
+          input(id="returned_on" type="text" name="returned_on" value=today)
+      p
+        input(type="submit" value="Return Book")

@@ -1,0 +1,30 @@
+extends ../layout
+
+block content
+    include ../errors
+
+    form(action="/loans/new" method="post")
+        p
+          label(for="book_id") Book
+          select(id="book_id" name="book_id")
+            each book in books
+              if(book.id === book_id)
+                option(value=book.id selected) #{book.title}
+              else
+                option(value=book.id) #{book.title}
+        p
+          label(for="patron_id") Patron
+          select(id="patron_id" name="patron_id")
+            each patron in patrons
+              if(patron.id === patron_id)
+                option(value=patron.id selected) #{patron.first_name} #{patron.last_name}
+              else
+                option(value=patron.id) #{patron.first_name} #{patron.last_name}
+        p
+          label(for="loaned_on") Loaned on:
+          input(id="loaned_on" type="text" name="loaned_on" value=loanedOn)
+        p
+          label(for="return_by") Return by:
+          input(id="return_by" type="text" name="return_by" value=returnBy)
+        p
+          input(type="submit" value="Create New Loan")

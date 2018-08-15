@@ -1,0 +1,61 @@
+extends ../layout
+
+block content
+  div(class="create-patron-div")
+    p(id="create-patron")
+      a(href="/patrons/new" class="button") Create New Patron
+  div(id="patron-search-div")
+    div
+      form(class="search-form" action="/patrons/search/0" method="post")
+        input(id="query" type="text" name='query' placeholder="Search..." value=`${ query ? query : "" }` required)
+        div(class="category-div")
+          p(class="by-paragraph") By:
+          select(id="patron-category" name="category")
+            each cat in categories
+              if(cat.value === category)
+                option(value=cat.value selected) #{cat.name}
+              else
+                option(value=cat.value) #{cat.name}
+  table
+    thead
+        tr
+          th Name
+          th Address
+          th Email
+          th Library ID
+          th Zip
+    tbody
+      each patron in patrons
+        tr
+          td
+            a(href=`/patrons/detail/${patron.dataValues.id}`) #{patron.dataValues.first_name} #{patron.dataValues.last_name}
+            td= patron.dataValues.address
+            td= patron.dataValues.email
+            td= patron.dataValues.library_id
+            td= patron.dataValues.zip_code
+  if(count > 10)
+    ul(class="pagination-list")
+      li(class="pagination-list-item")
+        if(activePage > 0)
+          a(href=`/patrons/${route}/${activePage - 1}`) Previous
+        else
+          p Previous
+      |
+      | -
+      each page, index in pages
+        li(class="pagination-list-item")
+          if(index === parseInt(activePage))
+            p(class="pagination-paragraph")= index+1
+          else
+            a(href=`/patrons/${route}/${index}`) #{index+1}
+        if(index < pages.length - 1)
+          |
+          | |
+      |
+      | -
+      li(class="pagination-list-item")
+        if(activePage < pages.length - 1)
+          a(href=`/patrons/${route}/${activePage + 1}`) Next
+        else
+          p Next
+  script(src="/js/app.js")

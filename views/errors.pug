@@ -1,0 +1,5 @@
+if(errors)
+  h2(class='error') Whoops! Please correct the following errors before submitting:
+  ul(class='error-list')
+    each error in errors
+      li(class='error') #{error.message}

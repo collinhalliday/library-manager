@@ -1,0 +1,81 @@
+extends ../layout
+
+block content
+  div(class="create-div")
+    p(id="create")
+      a(href="/books/new" class="button create") Create New Book
+    if(title.indexOf('Books Based') > -1)
+      p(id="filters")
+        | Filters
+        |
+        a(href="/books/list/0") All
+        |  |
+        |
+        a(href="#") Search Results
+    else
+      p(id="filters")
+        | Filters
+        |
+        a(href="/books/list/0") All
+        |  |
+        |
+        a(href="/books/overdue/0") Overdue
+        |  |
+        |
+        a(href="/books/checked-out/0") Checked Out
+  if(route !== "overdue" && route !== "checked-out")
+    div(id="search-div")
+      div
+        form(class="search-form" action="/books/search/0" method="post")
+          input(id="query" type="text" name='query' placeholder="Search..." value=`${ query ? query : "" }` required)
+          div(class="category-div")
+            p(class="by-paragraph") By:
+            select(id="category" name="category")
+              each cat in categories
+                if(cat === category)
+                  option(value=cat selected) #{cat.charAt(0).toUpperCase() + cat.substr(1)}
+                else
+                  option(value=cat) #{cat.charAt(0).toUpperCase() + cat.substr(1)}
+
+  table
+    thead
+        tr
+          th Title
+          th Author
+          th Genre
+          th Year Released
+    tbody
+        each book in books
+          tr
+            td
+              a(href=`/books/detail/${book.dataValues.id}`) #{book.dataValues.title}
+            td= book.dataValues.author
+            td= book.dataValues.genre
+            td= book.dataValues.first_published
+
+  if(count > 10)
+    ul(class="pagination-list")
+      li(class="pagination-list-item")
+        if(activePage > 0)
+          a(href=`/books/${route}/${activePage - 1}`) Previous
+        else
+          p Previous
+      |
+      | -
+      each page, index in pages
+        li(class="pagination-list-item")
+          if(index === parseInt(activePage))
+            p(class="pagination-paragraph")= index+1
+          else
+            a(href=`/books/${route}/${index}`) #{index+1}
+        if(index < pages.length - 1)
+          |
+          | |
+      |
+      | -
+      li(class="pagination-list-item")
+        if(activePage < pages.length - 1)
+          a(href=`/books/${route}/${activePage + 1}`) Next
+        else
+          p Next
+  script(src="/js/app.js")
